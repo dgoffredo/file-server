@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Upload File</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
       function onFileChanged() {
         const filename = document.getElementById('file').files[0].name;
@@ -19,20 +20,21 @@
         return true;
       }
     </script>
+    <style>
+      td {
+        padding-top: 1em;
+      }
+    </style>
   </head>
   <body>
     <form id="upload" name="upload" method="post" enctype="multipart/form-data" onsubmit="onSubmit()">
-      <div>
-        <label for="file">File</label>
-        <input type="file" id="file" name="file" onchange="onFileChanged()" />
-      </div>
-      <div>
-        <label for="filename">Name</label>
-        <input id="filename" name="filename" onchange="onFilenameChanged()" />
-      </div>
-      <div>
-        <button>Upload</button>
-      </div>
+      <table>
+      <tr><td><label for="file">File</label></td>
+             <td><input type="file" id="file" name="file" onchange="onFileChanged()" /></td></tr>
+      <tr><td><label for="filename">Name</label></td>
+             <td><input id="filename" name="filename" onchange="onFilenameChanged()" /></td></tr>
+      <tr><td></td><td align="right"><button>Upload</button></td><tr>
+      </table>
     </form>
   </body>
 </html>
