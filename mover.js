@@ -33,7 +33,7 @@ function shellQuote(string) {
 
 const handleRequest = function (request, response) {
   const source = request.headers['x-source-file'];
-  const destination = request.headers['x-destination-file'];
+  const destination = decodeURI(request.headers['x-destination-file']);
   const sed_program = '0,/^\\r$/d';
   const cleanup_command = `sed -i ${shellQuote(sed_program)} ${shellQuote(source)}`;
   exec(cleanup_command)
