@@ -1,0 +1,20 @@
+services:
+  nginx:
+    image: 'nginx:1.23.3'
+    volumes:
+      - 'uploads:/etc/file-server/uploads'
+      - './passwords:/etc/file-server/passwords:ro'
+      - './upload.html:/etc/file-server/www/upload.html:ro'
+      - './nginx.conf:/etc/nginx/conf.d/default.conf:ro'
+    ports:
+      - '8000:80'
+
+  mover:
+    image: 'node:19.3.0-bullseye-slim'
+    volumes:
+      - './mover.js:/usr/local/bin/mover.js:ro'
+      - 'uploads:/etc/file-server/uploads'
+    command: 'node /usr/local/bin/mover.js'
+
+volumes:
+  uploads:

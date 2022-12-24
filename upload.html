@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Upload File</title>
+    <script>
+      function onFileChanged() {
+        const filename = document.getElementById('file').files[0].name;
+        document.getElementById('filename').value = filename;
+        onFilenameChanged();
+      }
+
+      function onFilenameChanged() {
+        const filename = document.getElementById('filename').value;
+        const uri = `/upload-file?filename=${encodeURI(filename)}`;
+        document.getElementById('upload').action = uri;
+      }
+
+      function onSubmit() {
+        onFilenameChanged();
+        return true;
+      }
+    </script>
+  </head>
+  <body>
+    <form id="upload" name="upload" method="post" enctype="multipart/form-data" onsubmit="onSubmit()">
+      <div>
+        <label for="file">File</label>
+        <input type="file" id="file" name="file" onchange="onFileChanged()" />
+      </div>
+      <div>
+        <label for="filename">Name</label>
+        <input id="filename" name="filename" onchange="onFilenameChanged()" />
+      </div>
+      <div>
+        <button>Upload</button>
+      </div>
+    </form>
+  </body>
+</html>
