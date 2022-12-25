@@ -34,8 +34,10 @@ function shellQuote(string) {
 const handleRequest = function (request, response) {
   const source = request.headers['x-source-file'];
   const destination = decodeURI(request.headers['x-destination-file']);
-  const sed_program = '0,/^\\r$/d';
-  const cleanup_command = `sed -i ${shellQuote(sed_program)} ${shellQuote(source)}`;
+  const boundary = request.headers['content-type'].replace(/.*boundary=/, '');
+  const sed_program = `0,/^\\r$/d; /${boundary}/,$d`;
+  const source_quoted = shellQuote(source);
+  const cleanup_command = `sed -i ${shellQuote(sed_program)} ${source_quoted} && sed -i '$d' ${source_quoted}`;
   exec(cleanup_command)
     .then(({stdout, stderr}) => {
       if (stdout) console.log(stdout);
