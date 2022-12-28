@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 )
@@ -32,6 +33,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	destination := r.Header.Get("X-Destination-File")
 	if destination == "" {
 		deliverError(w, 400, "X-Destination-File header missing from request")
+		return
+	}
+	destination, err := url.PathUnescape(destination)
+	if err != nil {
+		deliverError(w, 400, "Invalid destination file name")
 		return
 	}
 	multi, err := r.MultipartReader()
