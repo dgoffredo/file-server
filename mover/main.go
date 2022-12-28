@@ -53,22 +53,27 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	dir := filepath.Join(uploads, filepath.Dir(destination))
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		deliverError(w, 500, "Unable to create parent directory of destination file")
+		return
 	}
 	file, err := os.Create(filepath.Join(uploads, destination))
 	if err != nil {
 		deliverError(w, 500, "Unable to create destination file")
+		return
 	}
+	defer func() {
+		file.Sync()
+		file.Close()
+	}()
 	_, err = io.Copy(file, part)
 	if err != nil {
 		deliverError(w, 500, "Unable to copy request file into destination file")
+		return
 	}
-	file.Sync()
-	file.Close()
 	deliverSuccess(w)
 }
 
 func deliverError(w http.ResponseWriter, status int, message string) {
-	log.Print(message) // TODO: no
+	log.Print(message)
 	w.Header().Add("Content-Type", "text/plain")
 	w.WriteHeader(status)
 	if _, err := io.WriteString(w, message); err != nil {
