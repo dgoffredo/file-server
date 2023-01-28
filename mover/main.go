@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const uploads = "/etc/file-server/uploads"
@@ -20,6 +21,23 @@ const success = `<!DOCTYPE html>
   </body>
 </html>
 `
+
+// decompose takes a base directory and a destination path relative to the
+// base, and returns the fully qualified destination including the base, except
+// that relative path parts (i.e. "..") have been removed. This means that the
+// resulting paths will always be descendants of base (no jail-breaking, if we
+// ignore links).
+func decompose(base, destination string) string {
+	parts := strings.Split(destination, string(os.PathSeparator))
+	safeParts := make([]string, len(parts))
+	for _, part := range parts {
+		if part != "." && part != ".." {
+			safeParts = append(safeParts, part)
+		}
+	}
+	safePath := strings.Join(safeParts, string(os.PathSeparator))
+	return filepath.Join(base, safePath)
+}
 
 func main() {
 	http.HandleFunc("/", handleRequest)
@@ -50,12 +68,13 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		deliverError(w, 400, "Request body does not contain a multipart piece")
 		return
 	}
-	dir := filepath.Join(uploads, filepath.Dir(destination))
+	destination = decompose(uploads, destination)
+	dir := filepath.Dir(destination)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		deliverError(w, 500, "Unable to create parent directory of destination file")
 		return
 	}
-	file, err := os.Create(filepath.Join(uploads, destination))
+	file, err := os.Create(destination)
 	if err != nil {
 		deliverError(w, 500, "Unable to create destination file")
 		return
